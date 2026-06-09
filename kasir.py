@@ -1,3 +1,7 @@
+import datetime
+
+# import datetime dan update tampilan dapur()
+# tampilan dapur kini menjadi dikelompokan berdasarkan order
 
 katalog_menu = [
     # 1: Makanan Ringan
@@ -77,7 +81,7 @@ def print_fitur():
     for i, fitur in enumerate(fitur_now, start=1):
         print(f"{i}. {fitur}")
 
-def print_menu_stok():
+def gudang():
     while True:
         for i, m in enumerate(katalog, start=1):
             print(f"{i}. {m}")
@@ -90,9 +94,10 @@ def print_menu_stok():
             for item in katalog_1:
                 print(f"{item['nama']:<30} | {item['stok']}")
             print("\n")
+            continue
         else:
             print("Kategori yang anda masukan tidak ada!")
-            break
+            continue
         
 
 def kasir():
@@ -154,18 +159,19 @@ def kasir():
                         else:
                             note = input("Instruksi Khusus (opsional): ") or "Tidak ada"
                         
-                        item["stok"] -= jumlah
-                        
+                        waktu_sekarang = datetime.datetime.now().strftime("%H:%M:%S")
+                                               
                         data_order = {
                             "nomor_order": nomor_order_global,
                             "menu": item["nama"],
                             "harga": item["harga"],
                             "jumlah": jumlah,
                             "total": item["harga"] * jumlah,
-                            "note": note
+                            "note": note,
+                            "time" : waktu_sekarang,
+                            "item_ref" : item
                         }
                         keranjang_saat_ini.append(data_order)
-                        pembeli.append(data_order)
                         print(f"Berhasil menambahkan {item['nama']}.")
                         break
                     
@@ -179,9 +185,20 @@ def kasir():
         print(f"STRUK PEMBELIAN - Order #{nomor_order_global:0>4}")
         print("-" * 50)
         total_final = sum(order['total'] for order in keranjang_saat_ini)
+        
         for order in keranjang_saat_ini:
             print(f"{order['menu']:<15} x{order['jumlah']:<3} Rp{order['total']:>10,}")
+            order["item_ref"]["stok"] -= order["jumlah"]
+            del order["item_ref"]
+            
+        pesanan_utuh = {
+            "nomor_order" : nomor_order_global,
+            "waktu" : keranjang_saat_ini[0]['time'],
+            "items" : keranjang_saat_ini
+        }
+        pembeli.append(pesanan_utuh)
         print("-" * 50)
+        print(f"Waktu: {pesanan_utuh['waktu']}")
         print(f"TOTAL BAYAR: Rp{total_final:,}")
         print("="*50)
         nomor_order_global += 1
@@ -191,11 +208,13 @@ def dapur():
     if not pembeli:
         print("Belum ada pesanan masuk.")
     else:
-        header = f"{'No':<4} | {'Order':<6} | {'Menu':<15} | {'Qty':<4} | {'Note':<15}"
-        print(header)
-        print("-" * len(header))
-        for i, d in enumerate(pembeli, start=1):
-            print(f"{i:<4} | {d['nomor_order']:0>4}   | {d['menu']:<15} | {d['jumlah']:<4} | {d['note']:<15}")
+        for order_grup in pembeli:
+            print(f"\n[ORDER #{order_grup['nomor_order']:0>4}] - Jam: {order_grup['waktu']}")
+            header = f"{'Menu':<25} | {'Qty':<5} | {'Note':<20}"
+            print(header)
+            print("-" * len(header))
+            for item in order_grup['items']:
+                print(f"{item['menu']:<25} | {item['jumlah']:<5} | {item['note']:<20}")
 
 def main():
     while True:
@@ -208,13 +227,13 @@ def main():
                 case 2:
                     dapur()
                 case 3:
-                    print_menu_stok()
+                    gudang()
                 case 4:
                     print("Terima kasih!")
                     break
                 case _:
                     print("Pilihan tidak valid.")
         except ValueError:
-            print("Masukkan angka 1-3!")
+            print("Masukkan angka 1-4!")
 
 main()
