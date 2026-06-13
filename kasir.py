@@ -1,7 +1,8 @@
-import datetime
+from datetime import datetime
 
-# import datetime dan update tampilan dapur()
-# tampilan dapur kini menjadi dikelompokan berdasarkan order
+# Menambahkan from datetime import datetime
+# Agar penulisan dari datetime.datetime.now().strftime("%H:%M:%S")
+# Menjadi datetime.now().strftime("%H:%M:%S")
 
 katalog_menu = [
     # 1: Makanan Ringan
@@ -159,7 +160,7 @@ def kasir():
                         else:
                             note = input("Instruksi Khusus (opsional): ") or "Tidak ada"
                         
-                        waktu_sekarang = datetime.datetime.now().strftime("%H:%M:%S")
+                        waktu_sekarang = datetime.now().strftime("%H:%M:%S")
                                                
                         data_order = {
                             "nomor_order": nomor_order_global,
