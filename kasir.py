@@ -1,8 +1,7 @@
 from datetime import datetime
 
-# Menambahkan from datetime import datetime
-# Agar penulisan dari datetime.datetime.now().strftime("%H:%M:%S")
-# Menjadi datetime.now().strftime("%H:%M:%S")
+# Menambahkan Fitur Pop pada dapur()
+# Agar bisa menghapus antrian pesanan
 
 katalog_menu = [
     # 1: Makanan Ringan
@@ -208,14 +207,34 @@ def dapur():
     print("\n--- Antrean Pesanan ---")
     if not pembeli:
         print("Belum ada pesanan masuk.")
-    else:
-        for order_grup in pembeli:
-            print(f"\n[ORDER #{order_grup['nomor_order']:0>4}] - Jam: {order_grup['waktu']}")
-            header = f"{'Menu':<25} | {'Qty':<5} | {'Note':<20}"
-            print(header)
-            print("-" * len(header))
-            for item in order_grup['items']:
-                print(f"{item['menu']:<25} | {item['jumlah']:<5} | {item['note']:<20}")
+        return 
+    
+    for order_grup in pembeli:
+        print(f"\n[ORDER #{order_grup['nomor_order']:0>4}] - Jam: {order_grup['waktu']}")
+        header = f"{'Menu':<25} | {'Qty':<5} | {'Note':<20}"
+        print(header)
+        print("-" * len(header))
+        for item in order_grup['items']:
+            print(f"{item['menu']:<25} | {item['jumlah']:<5} | {item['note']:<20}")
+            
+    try:
+        pilihan = int(input("\nMasukan Kode Pesanan Yang Sudah Selesai (0 Untuk Kembali): "))
+        if pilihan == 0:
+            return
+            
+        tertemu = False
+        for index, order in enumerate(pembeli):
+            if order['nomor_order'] == pilihan:
+                pembeli.pop(index) 
+                print(f"Pesanan #{pilihan:0>4} berhasil diselesaikan.")
+                tertemu = True
+                break 
+                
+        if not tertemu:
+            print(f"Pembeli dengan Kode Pesanan {pilihan} Tidak ditemukan!")
+            
+    except ValueError:
+        print("Input harus berupa angka!")
 
 def main():
     while True:
