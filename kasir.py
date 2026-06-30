@@ -1,7 +1,6 @@
 from datetime import datetime
 
-# Menambahkan Fitur Pop pada dapur()
-# Agar bisa menghapus antrian pesanan
+# penambahan try except
 
 katalog_menu = [
     # 1: Makanan Ringan
@@ -108,77 +107,86 @@ def kasir():
         print("\n--- Pilih Kategori (0 untuk Selesai/Bayar) ---")
         for i, m in enumerate(katalog, start=1):
             print(f"{i}. {m}")
-        
-        try:
-            pilih_kategori = int(input("Masukkan Kategori: "))
-            if pilih_kategori == 0:
+        while True:
+            try:
+                pilih_kategori = int(input("Masukkan Kategori: "))
+                break
+            except ValueError:
+                print("Input harus berupa angka!")
+        if pilih_kategori == 0:
+            break
+            
+        if 1 <= pilih_kategori <= len(katalog_menu):
+            menu = katalog_menu[pilih_kategori-1]
+            if not menu:
+                print("Kategori ini belum memiliki menu.")
+                continue
+        else:
+            print("Kategori tidak valid.")
+            continue
+
+        while True:
+            print("\n--- Menu Produk (0 untuk Kembali ke Kategori) ---")
+            header = f"{"No":<3} | {"Nama":<20} | {"Harga":<15} | {"Stok":<5} | {"Deskripsi":20}"
+            print(header)
+            print("-" * len(header))
+            for i, p in enumerate(menu, start=1):
+                print(f"{i:<3} | {p['nama']:<20} | {f"{p['harga']:,}":<15} | {p['stok']:<5} | {p['deskripsi']}")
+            while True:
+                try:
+                    pilihan = int(input("Pilih produk (nomor): "))
+                    break
+                except ValueError:
+                    print("Input harus berupa angka!")
+            if pilihan == 0:
                 break
             
-            if 1 <= pilih_kategori <= len(katalog_menu):
-                menu = katalog_menu[pilih_kategori-1]
-                if not menu:
-                    print("Kategori ini belum memiliki menu.")
-                    continue
-            else:
-                print("Kategori tidak valid.")
-                continue
-
-            while True:
-                print("\n--- Menu Produk (0 untuk Kembali ke Kategori) ---")
-                header = f"{"No":<3} | {"Nama":<20} | {"Harga":<15} | {"Stok":<5} | {"Deskripsi":20}"
-                print(header)
-                print("-" * len(header))
-                for i, p in enumerate(menu, start=1):
-                    print(f"{i:<3} | {p['nama']:<20} | {f"{p['harga']:,}":<15} | {p['stok']:<5} | {p['deskripsi']}")
+            if 1 <= pilihan <= len(menu):
+                item = menu[pilihan-1]
                 
-                pilihan = int(input("Pilih produk (nomor): "))
-                if pilihan == 0:
+                if item['stok'] <= 0:
+                    print(f"Maaf, {item['nama']} sudah habis!")
+                    continue
+                while True:
+                    while True:
+                        try:
+                            jumlah = int(input(f"Jumlah {item['nama']} (0 untuk batal): "))
+                            break
+                        except ValueError:
+                            print("Input harus berupa angak!")
+                    if jumlah == 0:
+                        print("Batal memilih produk ini.")
+                        break 
+                    if jumlah > item["stok"]:
+                        print(f"Stok tidak mencukupi! Sisa stok: {item['stok']}")
+                        continue
+                    if jumlah < 0:
+                        print("Jumlah tidak valid!")
+                        continue
+                    
+                    if pilih_kategori == 5:
+                        note = "Tidak ada"
+                    else:
+                        note = input("Instruksi Khusus (opsional): ") or "Tidak ada"
+                    
+                    waktu_sekarang = datetime.now().strftime("%H:%M:%S")
+                                           
+                    data_order = {
+                        "nomor_order": nomor_order_global,
+                        "menu": item["nama"],
+                        "harga": item["harga"],
+                        "jumlah": jumlah,
+                        "total": item["harga"] * jumlah,
+                        "note": note,
+                        "time" : waktu_sekarang,
+                        "item_ref" : item
+                    }
+                    keranjang_saat_ini.append(data_order)
+                    print(f"Berhasil menambahkan {item['nama']}.")
                     break
                 
-                if 1 <= pilihan <= len(menu):
-                    item = menu[pilihan-1]
-                    
-                    if item['stok'] <= 0:
-                        print(f"Maaf, {item['nama']} sudah habis!")
-                        continue
-
-                    while True:
-                        jumlah = int(input(f"Jumlah {item['nama']} (0 untuk batal): "))
-                        if jumlah == 0:
-                            print("Batal memilih produk ini.")
-                            break 
-                        if jumlah > item["stok"]:
-                            print(f"Stok tidak mencukupi! Sisa stok: {item['stok']}")
-                            continue
-                        if jumlah < 0:
-                            print("Jumlah tidak valid!")
-                            continue
-                        
-                        if pilih_kategori == 5:
-                            note = "Tidak ada"
-                        else:
-                            note = input("Instruksi Khusus (opsional): ") or "Tidak ada"
-                        
-                        waktu_sekarang = datetime.now().strftime("%H:%M:%S")
-                                               
-                        data_order = {
-                            "nomor_order": nomor_order_global,
-                            "menu": item["nama"],
-                            "harga": item["harga"],
-                            "jumlah": jumlah,
-                            "total": item["harga"] * jumlah,
-                            "note": note,
-                            "time" : waktu_sekarang,
-                            "item_ref" : item
-                        }
-                        keranjang_saat_ini.append(data_order)
-                        print(f"Berhasil menambahkan {item['nama']}.")
-                        break
-                    
-                else:
-                    print("Pilihan tidak tersedia.")
-        except ValueError:
-            print("Input harus berupa angka!")
+            else:
+                print("Pilihan tidak tersedia.")
 
     if keranjang_saat_ini:
         print("\n" + "="*50)
@@ -216,25 +224,25 @@ def dapur():
         print("-" * len(header))
         for item in order_grup['items']:
             print(f"{item['menu']:<25} | {item['jumlah']:<5} | {item['note']:<20}")
-            
-    try:
-        pilihan = int(input("\nMasukan Kode Pesanan Yang Sudah Selesai (0 Untuk Kembali): "))
-        if pilihan == 0:
-            return
-            
-        tertemu = False
-        for index, order in enumerate(pembeli):
-            if order['nomor_order'] == pilihan:
-                pembeli.pop(index) 
-                print(f"Pesanan #{pilihan:0>4} berhasil diselesaikan.")
-                tertemu = True
-                break 
-                
-        if not tertemu:
-            print(f"Pembeli dengan Kode Pesanan {pilihan} Tidak ditemukan!")
-            
-    except ValueError:
-        print("Input harus berupa angka!")
+    while True:        
+        try:
+            pilihan = int(input("\nMasukan Kode Pesanan Yang Sudah Selesai (0 Untuk Kembali): "))
+            if pilihan == 0:
+                return
+
+            tertemu = False
+            for index, order in enumerate(pembeli):
+                if order['nomor_order'] == pilihan:
+                    pembeli.pop(index) 
+                    print(f"Pesanan #{pilihan:0>4} berhasil diselesaikan.")
+                    tertemu = True
+                    break 
+
+            if not tertemu:
+                print(f"Pembeli dengan Kode Pesanan {pilihan} Tidak ditemukan!")
+
+        except ValueError:
+            print("Input harus berupa angka!")
 
 def main():
     while True:
