@@ -177,7 +177,7 @@ class Restoran:
                 print(header)
                 print("-" * len(header))
                 for i, p in enumerate(menu, start=1):
-                    print(f"{i:<3} | {p.nama:<20} | {f'{p.harga}:,':<15} | {p.stok:<5} | {p.deskripsi}")
+                    print(f"{i:<3} | {p.nama:<20} | {f'{p.harga:,}':<15} | {p.stok:<5} | {p.deskripsi}")
                 while True:
                     try:
                         pilihan = int(input("Pilih produk (nomor): "))
@@ -221,32 +221,31 @@ class Restoran:
                     print("Pilihan tidak tersedia.")
 
         if keranjang_saat_ini:
-            # Membuat objek Order baru
             order_baru = Order(self.nomor_order_global, keranjang_saat_ini)
             order_baru.tampilkan_struk()
             self.antrean_pembeli.append(order_baru)
             self.nomor_order_global += 1
 
     def dapur(self):
-        print("\n--- Antrean Pesanan ---")
-        if not self.antrean_pembeli:
-            print("Belum ada pesanan masuk.")
-            return 
-        
-        for order in self.antrean_pembeli:
-            print(f"\n[ORDER #{order.nomor_order:0>4}] - Jam: {order.waktu}")
-            header = f"{'Menu':<25} | {'Qty':<5} | {'Note':<20}"
-            print(header)
-            print("-" * len(header))
-            for item in order.daftar_item:
-                print(f"{item.produk.nama:<25} | {item.jumlah:<5} | {item.note:<20}")
-        
-        while True:        
+        while True:
+            print("\n--- Antrean Pesanan ---")
+            if not self.antrean_pembeli:
+                print("Belum ada pesanan masuk.")
+                return 
+
+            for order in self.antrean_pembeli:
+                print(f"\n[ORDER #{order.nomor_order:0>4}] - Jam: {order.waktu}")
+                header = f"{'Menu':<25} | {'Qty':<5} | {'Note':<20}"
+                print(header)
+                print("-" * len(header))
+                for item in order.daftar_item:
+                    print(f"{item.produk.nama:<25} | {item.jumlah:<5} | {item.note:<20}")
+       
             try:
                 pilihan = int(input("\nMasukkan Kode Pesanan Yang Sudah Selesai (0 Untuk Kembali): "))
                 if pilihan == 0:
                     return
-
+                
                 tertemu = False
                 for index, order in enumerate(self.antrean_pembeli):
                     if order.nomor_order == pilihan:
@@ -254,7 +253,7 @@ class Restoran:
                         print(f"Pesanan #{pilihan:0>4} berhasil diselesaikan.")
                         tertemu = True
                         break 
-
+                    
                 if not tertemu:
                     print(f"Pembeli dengan Kode Pesanan {pilihan} Tidak ditemukan!")
             except ValueError:
