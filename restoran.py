@@ -279,5 +279,6 @@ class Restoran:
             except ValueError:
                 print("Masukkan angka 1-4!")
 
-app = Restoran()
-app.jalankan()
+if __name__ == "__main__":
+    app = Restoran()
+    app.jalankan()
